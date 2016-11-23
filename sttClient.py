@@ -112,7 +112,7 @@ class WSInterfaceProtocol(WebSocketClientProtocol):
     def setUtterance(self, utt):
         self.uttNumber = utt[0]
         self.uttFileBytes = utt[1]
-        self.summary[self.uttNumber] = {"result": {}, "status": {"code": "", "reason": ""}}
+        self.summary[self.uttNumber] = {"result": [], "status": {"code": "", "reason": ""}}
 
     # helper method that sends a chunk of audio if needed (as required what the specified pacing is)
     def maybeSendChunk(self, data):
@@ -178,7 +178,7 @@ class WSInterfaceProtocol(WebSocketClientProtocol):
                     bFinal = (jsonObject['results'][0]['final'] == True)
                     if bFinal:
                         print "final hypothesis: \"" + result['transcript'] + "\""
-                        self.summary[self.uttNumber]["result"] = result
+                        self.summary[self.uttNumber]["result"].append(result)
                     else:
                         print "interim hyp: \"" + result['transcript'] + "\""
 

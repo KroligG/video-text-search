@@ -12,40 +12,70 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import os
+import platform
 import tempfile
 
-from flask import Flask, jsonify
+import pafy
+import urllib3
+from ffmpy import FFmpeg
+from flask import Flask, request, redirect, url_for
+from flask.templating import render_template
 
+import es
 import recognizer
+
+tempdir = tempfile.gettempdir()
 
 app = Flask(__name__)
 
+app.debug = True
+
+vcap_config = json.loads(os.environ.get('VCAP_SERVICES'))
+speech_to_text_credentials = vcap_config["speech_to_text"][0]["credentials"]
+es_url = vcap_config["compose-for-elasticsearch"][0]["credentials"]["uri"]
+
+urllib3.disable_warnings()
+es.init(es_url)
+
+
+@app.route('/submit', methods=['POST'])
+def submit():
+    video = pafy.new(request.form['url'])
+    audio_stream = video.getbestaudio()
+
+    filepath = os.path.join(tempdir, video.videoid + audio_stream.extension)
+    target_filepath = os.path.join(tempdir, video.videoid + '.opus')
+
+    if not os.path.exists(filepath):
+        audio_stream.download(filepath=filepath, quiet=True)
+
+    if not os.path.exists(target_filepath):
+        ff = FFmpeg(executable=os.path.join(app.root_path, "ff", "ffmpeg.exe" if platform.system() == 'Windows' else "ffmpeg"),
+                    # global_options="-t 10",
+                    inputs={filepath: None}, outputs={target_filepath: None})
+        ff.run()
+
+    recognition_result = recognizer.recognize(open(target_filepath, "rb").read(), contentType="audio/ogg;codecs=opus",
+                                              login=speech_to_text_credentials["username"], password=speech_to_text_credentials["password"])
+
+    result = es.YoutubeVideo.build_from_recognition(video, recognition_result["result"])
+    result.save()
+
+    return redirect(url_for('index'))
+
+
 @app.route('/')
-def Welcome():
-    return app.send_static_file('index.html')
+def index():
+    return render_template('show_entries.html', entries=list(es.YoutubeVideo.search()))
 
-@app.route('/myapp')
-def WelcomeToMyapp():
-    return jsonify({"r":'Welcome again to my app running on Bluemix!'})
 
-@app.route('/recognize')
-def RecognizeFile():
-    return jsonify(recognizer.recognize(app.open_resource("0001.wav", mode="rb").read()))
+@app.route('/search')
+def search():
+    return render_template('show_entries.html', entries=list(es.YoutubeVideo.search()))
 
-@app.route('/api/people')
-def GetPeople():
-    list = [
-        {'name': 'John', 'age': 28},
-        {'name': 'Bill', 'val': 26}
-    ]
-    return jsonify(results=list)
-
-@app.route('/api/people/<name>')
-def SayHello(name):
-    open(os.path.join(tempfile.gettempdir(), name), "w").write("test str " + name)
-    return open(os.path.join(tempfile.gettempdir(), name), "r").read()
 
 port = os.getenv('PORT', '5000')
 if __name__ == "__main__":
-	app.run(host='0.0.0.0', port=int(port))
+    app.run(host='0.0.0.0', port=int(port))

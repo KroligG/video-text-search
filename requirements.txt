@@ -6,3 +6,6 @@ Twisted>=13.2.0
 txaio>=2.0.4
 service_identity>=16.0.0
 pafy==0.5.2
+youtube_dl==2016.11.22
+ffmpy==0.2.2
+elasticsearch-dsl>=2.0.0,<3.0.0

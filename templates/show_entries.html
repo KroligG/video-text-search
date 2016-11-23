@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Indexed videos</h3>
+        </div>
+        <div class="panel-body">
+            {% for entry in entries %}
+                <div class="media">
+                    <div class="media-left">
+                        <div class="media-object video-preview">
+                            <div class="embed-responsive embed-responsive-16by9">
+                                <iframe class="embed-responsive-item" src="//www.youtube.com/embed/{{ entry._id }}"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="media-body">
+                        <a class="pull-right" role="button" data-toggle="collapse" href="#collapse{{ entry._id }}" aria-expanded="false" aria-controls="collapse{{ entry._id }}">
+                            View Transcript
+                        </a>
+                        <h4 class="media-heading">{{ entry.title }}</h4>
+                        <dl>
+                            <dt>Author</dt>
+                            <dd>{{ entry.author }}</dd>
+                            <dt>Views</dt>
+                            <dd>{{ entry.viewcount }}</dd>
+                            <dt>Duration</dt>
+                            <dd>{{ entry.duration }}</dd>
+                            <dt>Rating</dt>
+                            <dd>{{ entry.rating }}</dd>
+                        </dl>
+                    </div>
+                    <div id="collapse{{ entry._id }}" class="collapse" role="tabpanel" aria-labelledby="headingOne">
+                        <pre>{{ entry.transscript }}</pre>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="panel panel-success">
+        <div class="panel-heading">Index new video</div>
+        <div class="panel-body">
+            <form class="form-horizontal" action="{{ url_for('submit') }}" method="post">
+                <div class="form-group">
+                    <label for="versionInput" class="col-sm-2 control-label">Youtube Video URL</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="versionInput" placeholder="https://www.youtube.com/watch?v=xxxxxxxx" name="url" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-default">Index</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
