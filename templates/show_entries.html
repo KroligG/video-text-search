@@ -10,7 +10,7 @@
                     <div class="media-left">
                         <div class="media-object video-preview">
                             <div class="embed-responsive embed-responsive-16by9">
-                                <iframe class="embed-responsive-item" src="//www.youtube.com/embed/{{ entry._id }}"></iframe>
+                                <iframe class="embed-responsive-item" src="//www.youtube.com/embed/{{ entry._id }}?start=5"></iframe>
                             </div>
                         </div>
                     </div>
@@ -30,8 +30,9 @@
                             <dd>{{ entry.rating }}</dd>
                         </dl>
                     </div>
-                    <div id="collapse{{ entry._id }}" class="collapse" role="tabpanel" aria-labelledby="headingOne">
+                    <div id="collapse{{ entry._id }}" class="collapse " role="tabpanel" aria-labelledby="headingOne">
                         <pre>{{ entry.transscript }}</pre>
+                        <pre>{{ entry.meta.highlight }}</pre>
                     </div>
                 </div>
             {% endfor %}

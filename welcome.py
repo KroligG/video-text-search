@@ -22,6 +22,7 @@ import urllib3
 from ffmpy import FFmpeg
 from flask import Flask, request, redirect, url_for
 from flask.templating import render_template
+from elasticsearch_dsl.query import MultiMatch
 
 import es
 import recognizer
@@ -73,7 +74,9 @@ def index():
 
 @app.route('/search')
 def search():
-    return render_template('show_entries.html', entries=list(es.YoutubeVideo.search()))
+    q = request.args.get('q')
+    result = list(es.YoutubeVideo.search().query(MultiMatch(query=q, fields=["transscript", "timestamps.word"])).highlight('timestamps.word'))
+    return render_template('show_entries.html', entries=result)
 
 
 port = os.getenv('PORT', '5000')

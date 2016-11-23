@@ -154,7 +154,7 @@ class WSInterfaceProtocol(WebSocketClientProtocol):
         if isBinary:
             print("Binary message received: {0} bytes".format(len(payload)))
         else:
-            print(u"Text message received: {0}".format(payload.decode('utf8')))
+            # print(u"Text message received: {0}".format(payload.decode('utf8')))
 
             # if uninitialized, receive the initialization response from the server
             jsonObject = json.loads(payload.decode('utf8'))
@@ -167,13 +167,13 @@ class WSInterfaceProtocol(WebSocketClientProtocol):
 
             # if in streaming
             elif 'results' in jsonObject:
-                jsonObject = json.loads(payload.decode('utf8'))
+                # jsonObject = json.loads(payload.decode('utf8'))
                 # empty hypothesis
                 if (len(jsonObject['results']) == 0):
                     print "empty hypothesis!"
                 # regular hypothesis
                 else:
-                    jsonObject = json.loads(payload.decode('utf8'))
+                    # jsonObject = json.loads(payload.decode('utf8'))
                     result = jsonObject['results'][0]['alternatives'][0]
                     bFinal = (jsonObject['results'][0]['final'] == True)
                     if bFinal:
