@@ -76,7 +76,7 @@ def index():
 def search():
     q = request.args.get('q')
     result = list(es.YoutubeVideo.search()
-                  .query(Match(transscript=q) | Nested(path="timestamps", query=Match(**{"timestamps.word": q}), inner_hits={"sort": "timestamps.time"}))
+                  .query(Match(transscript=q) | Nested(path="timestamps", query=Match(**{"timestamps.word": q}), inner_hits={"sort": "timestamps.time", "size": 1000}))
                   .highlight('transscript', number_of_fragments=0))
 
     for r in result:
