@@ -5,6 +5,12 @@ body {
 em {
     background-color: yellow;
     font-style: normal;
+    text-decoration: dashed;
+}
+
+em:hover {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .video-preview {

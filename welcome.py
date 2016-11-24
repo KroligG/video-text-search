@@ -80,7 +80,7 @@ def search():
                   .highlight('transscript', number_of_fragments=0))
 
     for r in result:
-        r.matched_words = [x["_source"] for x in r.meta.inner_hits.timestamps.hits.hits]
+        r.matched_words = json.dumps([x["_source"] for x in r.meta.inner_hits.timestamps.hits.hits])
 
     return render_template('search_results.html', entries=result)
 

@@ -6,7 +6,7 @@
         </div>
         <div class="panel-body">
             {% for entry in entries %}
-                <div class="media">
+                <div class="media found-video" data-videoid="{{ entry._id }}">
                     <div class="media-left">
                         <div class="media-object video-preview">
                             <div class="embed-responsive embed-responsive-16by9">
@@ -30,20 +30,23 @@
                             <dd>{{ entry.rating }}</dd>
                         </dl>
                     </div>
-                    <div id="collapse{{ entry._id }}" class="collapse " role="tabpanel" aria-labelledby="headingOne">
+                    <div id="collapse{{ entry._id }}" class="collapse video-highlights" role="tabpanel">
                         <div>{{ entry.meta.highlight.transscript[0]|replace("\n","<br>")|safe }}</div>
-                        <pre>{{ entry.matched_words }}</pre>
+                        <pre></pre>
                     </div>
                 </div>
             {% endfor %}
             <script>
                 function onYouTubeIframeAPIReady() {
                     players = {};
+                    words = {};
                     {% for entry in entries %}
                         players["{{ entry._id }}"] = new YT.Player('player{{ entry._id }}', {
                             videoId: '{{ entry._id }}'
                         });
+                        words["{{ entry._id }}"] = JSON.parse('{{ entry.matched_words|safe }}');
                     {% endfor %}
+                    init_search();
                 }
             </script>
         </div>
@@ -67,4 +70,6 @@
             </form>
         </div>
     </div>
+
+    <script src="{{ url_for('static', filename='js/search_results.js') }}"></script>
 {% endblock %}
