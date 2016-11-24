@@ -2,7 +2,7 @@
 {% block body %}
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Indexed videos</h3>
+            <h3 class="panel-title">Search results</h3>
         </div>
         <div class="panel-body">
             {% for entry in entries %}
@@ -31,7 +31,8 @@
                         </dl>
                     </div>
                     <div id="collapse{{ entry._id }}" class="collapse " role="tabpanel" aria-labelledby="headingOne">
-                        <div>{{ entry.transscript|replace("\n","<br>")|safe }}</div>
+                        <div>{{ entry.meta.highlight.transscript[0]|replace("\n","<br>")|safe }}</div>
+                        <pre>{{ entry.matched_words }}</pre>
                     </div>
                 </div>
             {% endfor %}

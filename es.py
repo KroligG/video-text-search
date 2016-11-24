@@ -1,5 +1,11 @@
-from elasticsearch_dsl import DocType, String, Integer, Object
+from elasticsearch_dsl import DocType
 from elasticsearch_dsl.connections import connections
+from elasticsearch_dsl.field import InnerObjectWrapper, Nested, String, Integer, Float
+
+
+class Timestamp(InnerObjectWrapper):
+    word = String()
+    time = Float()
 
 
 class YoutubeVideo(DocType):
@@ -11,10 +17,10 @@ class YoutubeVideo(DocType):
     thumb = String()
 
     transscript = String()
-    timestamps = Object()
+    timestamps = Nested(doc_class=Timestamp)
 
     class Meta:
-        index = 'videos'
+        index = 'videos2'
 
     def save(self, **kwargs):
         # self.lines = len(self.body.split())

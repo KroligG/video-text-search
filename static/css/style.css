@@ -1,4 +1,11 @@
-body { padding-top: 70px; }
+body {
+    padding-top: 70px;
+}
+
+em {
+    background-color: yellow;
+    font-style: normal;
+}
 
 .video-preview {
     width: 320px;

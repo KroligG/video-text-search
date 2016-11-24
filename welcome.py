@@ -19,10 +19,10 @@ import tempfile
 
 import pafy
 import urllib3
+from elasticsearch_dsl.query import Match, Nested
 from ffmpy import FFmpeg
 from flask import Flask, request, redirect, url_for
 from flask.templating import render_template
-from elasticsearch_dsl.query import MultiMatch
 
 import es
 import recognizer
@@ -75,8 +75,14 @@ def index():
 @app.route('/search')
 def search():
     q = request.args.get('q')
-    result = list(es.YoutubeVideo.search().query(MultiMatch(query=q, fields=["transscript", "timestamps.word"])).highlight('timestamps.word'))
-    return render_template('show_entries.html', entries=result)
+    result = list(es.YoutubeVideo.search()
+                  .query(Match(transscript=q) | Nested(path="timestamps", query=Match(**{"timestamps.word": q}), inner_hits={"sort": "timestamps.time"}))
+                  .highlight('transscript', number_of_fragments=0))
+
+    for r in result:
+        r.matched_words = [x["_source"] for x in r.meta.inner_hits.timestamps.hits.hits]
+
+    return render_template('search_results.html', entries=result)
 
 
 port = os.getenv('PORT', '5000')
